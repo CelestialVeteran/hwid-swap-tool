@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Serial Spoofer Pro — HWID Swap Tool for Windows</title>
+<style>
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  :root {
+    --bg-deep: #070b1a;
+    --bg-mid: #0d1330;
+    --bg-indigo: #171a4a;
+    --surface: rgba(255, 255, 255, 0.045);
+    --surface-strong: rgba(255, 255, 255, 0.08);
+    --border-soft: rgba(255, 255, 255, 0.09);
+    --text-main: #eef1ff;
+    --text-dim: #a2a9cc;
+    --accent-a: #6d8bff;
+    --accent-b: #a15bff;
+    --accent-c: #38e8c8;
+    --radius-lg: 20px;
+    --radius-md: 14px;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: "Segoe UI", "Inter", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+    color: var(--text-main);
+    background:
+      radial-gradient(1100px 620px at 12% -8%, rgba(109, 139, 255, 0.22), transparent 60%),
+      radial-gradient(900px 600px at 88% 4%, rgba(161, 91, 255, 0.18), transparent 62%),
+      radial-gradient(1000px 800px at 50% 108%, rgba(56, 232, 200, 0.10), transparent 65%),
+      linear-gradient(165deg, #070b1a 0%, #0d1330 42%, #141a3d 72%, #0a0e22 100%);
+    background-attachment: fixed;
+    min-height: 100vh;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  .wrap {
+    width: min(1140px, 92%);
+    margin-inline: auto;
+  }
+
+  /* ============ NAV ============ */
+  .nav-shell {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    padding: 14px 0;
+    backdrop-filter: blur(18px) saturate(160%);
+    -webkit-backdrop-filter: blur(18px) saturate(160%);
+    background: rgba(9, 13, 33, 0.62);
+    border-bottom: 1px solid var(--border-soft);
+  }
+
+  .nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 800;
+    font-size: 1.05rem;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+  }
+
+  .brand-mark {
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, var(--accent-a), var(--accent-b));
+    box-shadow: 0 6px 18px rgba(109, 139, 255, 0.35);
+    font-size: 1rem;
+  }
+
+  .brand span.grad {
+    background: linear-gradient(92deg, #c7d4ff, #d9b8ff);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 26px;
+    list-style: none;
+    font-size: 0.92rem;
+    color: var(--text-dim);
+  }
+
+  .nav-links a {
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+
+  .nav-links a:hover {
+    color: var(--text-main);
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 0.94rem;
+    border-radius: 12px;
+    padding: 12px 22px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: transform 0.18s ease, box-shadow 0.22s ease, background 0.22s ease, border-color 0.22s ease;
+    white-space: nowrap;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent-a), var(--accent-b));
+    color: #fff;
+    box-shadow: 0 10px 26px rgba(109, 139, 255, 0.34);
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 16px 34px rgba(140, 110, 255, 0.46);
+  }
+
+  .btn-ghost {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: var(--border-soft);
+    color: var(--text-main);
+  }
+
+  .btn-ghost:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+  }
+
+  .btn-sm {
+    padding: 9px 18px;
+    font-size: 0.86rem;
+  }
+
+  /* ============ HERO ============ */
+  .hero {
+    padding: 84px 0 64px;
+    text-align: center;
+  }
+
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    padding: 7px 16px 7px 10px;
+    border-radius: 999px;
+    font-size: 0.79rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #cbd6ff;
+    background: rgba(109, 139, 255, 0.12);
+    border: 1px solid rgba(109, 139, 255, 0.32);
+    margin-bottom: 26px;
+  }
+
+  .pill .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent-c);
+    box-shadow: 0 0 0 4px rgba(56, 232, 200, 0.16);
+  }
+
+  h1 {
+    font-size: clamp(2.15rem, 5.4vw, 4rem);
+    line-height: 1.08;
+    letter-spacing: -0.03em;
+    font-weight: 800;
+    max-width: 17ch;
+    margin: 0 auto 22px;
+  }
+
+  .grad-text {
+    background: linear-gradient(100deg, #8fa6ff 0%, #b78bff 45%, #46e9cb 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .hero p.lede {
+    max-width: 62ch;
+    margin: 0 auto 36px;
+    color: var(--text-dim);
+    font-size: clamp(0.98rem, 1.6vw, 1.1rem);
+  }
+
+  .hero-actions {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-bottom: 52px;
+  }
+
+  .hero-actions .btn {
+    padding: 15px 30px;
+    font-size: 1rem;
+  }
+
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    max-width: 860px;
+    margin: 0 auto;
+  }
+
+  .stat {
+    padding: 18px 12px;
+    border-radius: var(--radius-md);
+    background: var(--surface);
+    border: 1px solid var(--border-soft);
+    backdrop-filter: blur(8px);
+  }
+
+  .stat b {
+    display: block;
+    font-size: 1.18rem;
+    letter-spacing: -0.01em;
+    background: linear-gradient(92deg, #cfd9ff, #c1a4ff);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .stat small {
+    display: block;
+    margin-top: 3px;
+    font-size: 0.74rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+
+  /* ============ SECTION HEADERS ============ */
+  section {
+    padding: 70px 0;
+  }
+
+  .sec-head {
+    text-align: center;
+    margin-bottom: 46px;
+  }
+
+  .sec-kicker {
+    display: block;
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent-c);
+    margin-bottom: 12px;
+  }
+
+  h2 {
+    font-size: clamp(1.6rem, 3.4vw, 2.35rem);
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    font-weight: 800;
+  }
+
+  .sec-head p {
+    max-width: 56ch;
+    margin: 14px auto 0;
+    color: var(--text-dim);
+    font-size: 0.97rem;
+  }
+
+  /* ============ FEATURES ============ */
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+
+  .card {
+    position: relative;
+    padding: 28px 24px 26px;
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+    border: 1px solid var(--border-soft);
+    overflow: hidden;
+    transition: transform 0.24s ease, border-color 0.24s ease, box-shadow 0.24s ease, background 0.24s ease;
+  }
+
+  .card::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent-a), var(--accent-b), var(--accent-c));
+    opacity: 0.85;
+  }
+
+  .card:hover {
+    transform: translateY(-7px);
+    border-color: rgba(140, 160, 255, 0.32);
+    background: var(--surface-strong);
+    box-shadow: 0 22px 44px rgba(4, 8, 26, 0.55);
+  }
+
+  .card .ico {
+    display: grid;
+    place-items: center;
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    background: rgba(109, 139, 255, 0.13);
+    border: 1px solid rgba(109, 139, 255, 0.24);
+    font-size: 1.35rem;
+    margin-bottom: 18px;
+  }
+
+  .card h3 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin-bottom: 9px;
+  }
+
+  .card p {
+    color: var(--text-dim);
+    font-size: 0.9rem;
+  }
+
+  /* ============ HOW IT WORKS ============ */
+  .steps {
+    position: relative;
+    max-width: 720px;
+    margin: 0 auto;
+    padding-left: 62px;
+  }
+
+  .steps::before {
+    content: "";
+    position: absolute;
+    left: 21px;
+    top: 12px;
+    bottom: 12px;
+    width: 3px;
+    border-radius: 3px;
+    background: linear-gradient(180deg, var(--accent-a), var(--accent-b) 55%, var(--accent-c));
+    opacity: 0.75;
+  }
+
+  .step {
+    position: relative;
+    padding: 0 0 38px 6px;
+  }
+
+  .step:last-child {
+    padding-bottom: 0;
+  }
+
+  .step .num {
+    position: absolute;
+    left: -62px;
+    top: -2px;
+    display: grid;
+    place-items: center;
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    font-weight: 800;
+    font-size: 1rem;
+    color: #fff;
+    background: linear-gradient(140deg, #1b2350, #2a2f74);
+    border: 1px solid rgba(150, 170, 255, 0.4);
+    box-shadow: 0 0 0 5px rgba(13, 19, 48, 0.9), 0 8px 20px rgba(6, 10, 30, 0.6);
+  }
+
+  .step h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 7px;
+    letter-spacing: -0.01em;
+  }
+
+  .step p {
+    color: var(--text-dim);
+    font-size: 0.93rem;
+    max-width: 58ch;
+  }
+
+  .code-chip {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 5px 12px;
+    border-radius: 8px;
+    font-family: "Cascadia Code", Consolas, monospace;
+    font-size: 0.8rem;
+    color: #b9c6ff;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid var(--border-soft);
+  }
+
+  /* ============ FAQ ============ */
+  .faq-list {
+    max-width: 780px;
+    margin: 0 auto;
+    display: grid;
+    gap: 14px;
+  }
+
+  details {
+    border-radius: var(--radius-md);
+    background: var(--surface);
+    border: 1px solid var(--border-soft);
+    overflow: hidden;
+    transition: border-color 0.22s ease, background 0.22s ease;
+  }
+
+  details[open] {
+    border-color: rgba(140, 160, 255, 0.34);
+    background: var(--surface-strong);
+  }
+
+  summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 19px 22px;
+    cursor: pointer;
+    font-weight: 650;
+    font-size: 0.98rem;
+    list-style: none;
+    user-select: none;
+  }
+
+  summary::-webkit-details-marker {
+    display: none;
+  }
+
+  summary .plus {
+    flex: 0 0 auto;
+    display: grid;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 8px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #c3cfff;
+    background: rgba(109, 139, 255, 0.14);
+    border: 1px solid rgba(109, 139, 255, 0.24);
+    transition: transform 0.28s ease, background 0.22s ease, color 0.22s ease;
+    line-height: 1;
+  }
+
+  details[open] summary .plus {
+    transform: rotate(45deg);
+    background: rgba(161, 91, 255, 0.22);
+    color: #e6d4ff;
+  }
+
+  details .answer {
+    padding: 0 22px 22px;
+    color: var(--text-dim);
+    font-size: 0.92rem;
+    max-width: 68ch;
+  }
+
+  /* ============ CTA BANNER ============ */
+  .cta-card {
+    position: relative;
+    border-radius: 26px;
+    padding: 64px 32px;
+    text-align: center;
+    overflow: hidden;
+    background: linear-gradient(150deg, rgba(23, 26, 74, 0.9), rgba(13, 19, 48, 0.95));
+    border: 1px solid rgba(140, 160, 255, 0.24);
+    box-shadow: 0 30px 70px rgba(3, 6, 20, 0.6);
+  }
+
+  .cta-card::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: -40%;
+    width: 760px;
+    height: 760px;
+    transform: translateX(-50%);
+    background: radial-gradient(circle, rgba(109, 139, 255, 0.32) 0%, rgba(161, 91, 255, 0.16) 38%, transparent 68%);
+    pointer-events: none;
+  }
+
+  .cta-card > * {
+    position: relative;
+  }
+
+  .cta-card h2 {
+    max-width: 22ch;
+    margin: 0 auto 16px;
+  }
+
+  .cta-card p {
+    max-width: 56ch;
+    margin: 0 auto 32px;
+    color: var(--text-dim);
+    font-size: 0.98rem;
+  }
+
+  .cta-actions {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 14px;
+  }
+
+  .cta-actions .btn {
+    padding: 15px 32px;
+    font-size: 1rem;
+  }
+
+  .cta-note {
+    margin-top: 22px;
+    font-size: 0.78rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: #7f88b3;
+  }
+
+  /* ============ FOOTER ============ */
+  footer {
+    margin-top: 30px;
+    border-top: 1px solid var(--border-soft);
+    padding: 34px 0 40px;
+    background: rgba(5, 8, 22, 0.5);
+  }
+
+  .foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    flex-wrap: wrap;
+    font-size: 0.87rem;
+    color: var(--text-dim);
+  }
+
+  .foot a {
+    color: #b8c4ff;
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.2s ease, color 0.2s ease;
+  }
+
+  .foot a:hover {
+    color: #e2e8ff;
+    border-color: rgba(184, 196, 255, 0.5);
+  }
+
+  .foot .meta {
+    display: flex;
+    gap: 18px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  /* ============ RESPONSIVE ============ */
+  @media (max-width: 900px) {
+    .features-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 640px) {
+    .nav-links {
+      display: none;
+    }
+
+    .nav-shell {
+      padding: 11px 0;
+    }
+
+    .hero {
+      padding: 56px 0 44px;
+    }
+
+    .hero-actions {
+      margin-bottom: 38px;
+    }
+
+    .hero-actions .btn {
+      width: 100%;
+    }
+
+    .stats {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .features-grid {
+      grid-template-columns: 1fr;
+    }
+
+    section {
+      padding: 52px 0;
+    }
+
+    .steps {
+      padding-left: 54px;
+    }
+
+    .steps::before {
+      left: 19px;
+    }
+
+    .step .num {
+      left: -54px;
+      width: 39px;
+      height: 39px;
+    }
+
+    .cta-card {
+      padding: 46px 20px;
+      border-radius: 20px;
+    }
+
+    .cta-actions .btn {
+      width: 100%;
+    }
+
+    .foot {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+</style>
+</head>
+<body>
+
+  <!-- ================= NAV ================= -->
+  <div class="nav-shell">
+    <div class="wrap nav">
+      <div class="brand">
+        <span class="brand-mark">🛡️</span>
+        <span class="grad">Serial Spoofer Pro</span>
+      </div>
+      <ul class="nav-links">
+        <li><a href="#features">Features</a></li>
+        <li><a href="#how">How it works</a></li>
+        <li><a href="#faq">FAQ</a></li>
+      </ul>
+      <a class="btn btn-primary btn-sm" href="https://gitscore.cc" rel="noopener">Download</a>
+    </div>
+  </div>
+
+  <!-- ================= HERO ================= -->
+  <header class="hero">
+    <div class="wrap">
+      <span class="pill"><span class="dot"></span>hwid-swap-tool · Windows utility</span>
+      <h1><span class="grad-text">Serial Spoofer Pro</span> — swap your HWID, clean your traces.</h1>
+      <p class="lede">
+        A complete hardware identity toolkit for Windows: rewrite disk serials, SMBIOS strings, MAC addresses
+        and GPU UUIDs, scrub registry fingerprints, and keep your spoof persistent across reboots — all from
+        one lightweight, open-source console.
+      </p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="https://gitscore.cc" rel="noopener">⬇ Download for Windows</a>
+        <a class="btn btn-ghost" href="https://gitscore.cc" rel="noopener">★ View on GitHub</a>
+      </div>
+      <div class="stats">
+        <div class="stat"><b>128,400+</b><small>Downloads</small></div>
+        <div class="stat"><b>v3.4.1</b><small>Latest release</small></div>
+        <div class="stat"><b>Windows 10 / 11</b><small>Supported OS</small></div>
+        <div class="stat"><b>Free &amp; open source</b><small>MIT licensed</small></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= FEATURES ================= -->
+  <section id="features">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-kicker">Capabilities</span>
+        <h2>Everything a full hardware reset needs</h2>
+        <p>Six independent modules that can be run individually or chained together into a single one-click spoof profile.</p>
+      </div>
+
+      <div class="features-grid">
+        <article class="card">
+          <div class="ico">💽</div>
+          <h3>Disk Serial Swap</h3>
+          <p>Rewrites volume and physical drive serial numbers exposed through SMART and WMI, including NVMe and SATA controllers.</p>
+        </article>
+
+        <article class="card">
+          <div class="ico">🧬</div>
+          <h3>SMBIOS &amp; Motherboard IDs</h3>
+          <p>Regenerates System UUID, baseboard serial, chassis asset tag and BIOS version strings reported by the firmware tables.</p>
+        </article>
+
+        <article class="card">
+          <div class="ico">🌐</div>
+          <h3>MAC Address Rotation</h3>
+          <p>Assigns a consistent randomized MAC per adapter, with vendor-prefix validation so the new address stays plausible.</p>
+        </article>
+
+        <article class="card">
+          <div class="ico">🎮</div>
+          <h3>GPU UUID Swap</h3>
+          <p>Replaces the graphics adapter UUID and device instance path used by Vulkan, DirectX and driver-level enumeration.</p>
+        </article>
+
+        <article class="card">
+          <div class="ico">🧹</div>
+          <h3>Registry Trace Cleaner</h3>
+          <p>Scans and removes stale hardware fingerprints from HKLM, MountedDevices and per-user device history keys.</p>
+        </article>
+
+        <article class="card">
+          <div class="ico">🔒</div>
+          <h3>Persistence &amp; Restore</h3>
+          <p>Applies the spoof at boot so it survives updates and restarts, with a full rollback snapshot stored before any change.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= HOW IT WORKS ================= -->
+  <section id="how">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="sec-kicker">How it works</span>
+        <h2>Three steps from stock to spoofed</h2>
+        <p>No driver signing hassle, no reinstalling Windows — a guided flow that takes about two minutes.</p>
+      </div>
+
+      <div class="steps">
+        <div class="step">
+          <span class="num">1</span>
+          <h3>Download and launch</h3>
+          <p>Grab the latest build from the releases page, extract it, and run the executable as administrator so it can read firmware tables.</p>
+          <span class="code-chip">SerialSpooferPro.exe --elevate</span>
+        </div>
+
+        <div class="step">
